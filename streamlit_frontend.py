@@ -1,14 +1,14 @@
 import streamlit as st
-from vector_store import FlowerShopVectorStore
+from vector_store import GroceryStoreVectorStore
 from chatbot import app
 from langchain_core.messages import AIMessage, HumanMessage
 from tools import customers_database, data_protection_checks
 
 
-st.set_page_config(layout='wide', page_title='Flower Shop Chatbot', page_icon='💐')
+st.set_page_config(layout='wide', page_title='Grocery Store Chatbot', page_icon='🛒')
 
 if 'message_history' not in st.session_state:
-    st.session_state.message_history = [AIMessage(content="Hiya, Im the flower shop chatbot. How can I help?")]
+    st.session_state.message_history = [AIMessage(content="Hello! Welcome to our grocery store chatbot. How can I assist you today?")]
 
 left_col, main_col, right_col = st.columns([1, 2, 1])
 
@@ -21,7 +21,7 @@ with left_col:
 
 # 2. Chat history and input
 with main_col:
-    user_input = st.chat_input("Type here...")
+    user_input = st.chat_input("Type your question or request here...")
 
     if user_input:
         st.session_state.message_history.append(HumanMessage(content=user_input))
@@ -39,10 +39,11 @@ with main_col:
         else:
             message_box = st.chat_message('user')
         message_box.markdown(this_message.content)
+
 # 3. State variables
 
 with right_col:
-    st.title('customers database')
+    st.title('Customer Database')
     st.write(customers_database)
-    st.title('data protection checks')
+    st.title('Data Protection Checks')
     st.write(data_protection_checks)

@@ -28,7 +28,7 @@ class QuestionAnswerPairs:
 
 
 
-class FlowerShopVectorStore:
+class GroceryStoreVectorStore:
     def __init__(self):
         db = PersistentClient(path=DB_PATH)
 

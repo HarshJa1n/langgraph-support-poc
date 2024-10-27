@@ -2,25 +2,25 @@ from langgraph.graph import StateGraph, MessagesState
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import ToolNode
-from tools import query_knowledge_base, search_for_product_reccommendations, data_protection_check, create_new_customer, place_order, retrieve_existing_customer_orders
+from tools import query_knowledge_base, check_product_availability, data_protection_check, create_new_customer, place_order, retrieve_existing_customer_orders, track_delivery
 
 import os
 
 
 prompt = """#Purpose 
 
-You are a customer service chatbot for a flower shop company. You can help the customer achieve the goals listed below.
+You are a customer service chatbot for a grocery store. You can help the customer achieve the goals listed below.
 
 #Goals
 
-1. Answer questions the user might have relating to serivces offered
-2. Recommend products to the user based on their preferences
-3. Help the customer check on an existing order, or place a new order
+1. Answer questions the user might have relating to services offered
+2. Check product availability and recommend alternatives if needed
+3. Help the customer check on an existing order status or track their delivery
 4. To place and manage orders, you will need a customer profile (with an associated id). If the customer already has a profile, perform a data protection check to retrieve their details. If not, create them a profile.
 
 #Tone
 
-Helpful and friendly. Use gen-z emojis to keep things lighthearted. You MUST always include a funny flower related pun in every response."""
+Helpful and friendly. Use casual language to keep things approachable. You MUST always include a fun food-related pun in every response."""
 
 chat_template = ChatPromptTemplate.from_messages(
     [
@@ -34,7 +34,7 @@ with open('./.env', 'r', encoding='utf-8') as f:
         key, value = line.strip().split('=')
         os.environ[key] = value
 
-tools = [query_knowledge_base, search_for_product_reccommendations, data_protection_check, create_new_customer, place_order, retrieve_existing_customer_orders]
+tools = [query_knowledge_base, check_product_availability, data_protection_check, create_new_customer, place_order, retrieve_existing_customer_orders, track_delivery]
 
 llm = ChatOpenAI(
     model="gpt-4o",

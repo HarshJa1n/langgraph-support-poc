@@ -1,9 +1,9 @@
 from langchain_core.tools import tool
 from typing import List, Dict
-from vector_store import FlowerShopVectorStore
+from vector_store import GroceryStoreVectorStore
 import json
 
-vector_store = FlowerShopVectorStore()
+vector_store = GroceryStoreVectorStore()
 
 customers_database = [
     {"name": "John Doe", "postcode": "SW1A 1AA", "dob": "1990-01-01", "customer_id": "CUST001", "first_line_address": "123 Main St", "phone_number": "07712345678", "email": "john.doe@example.com"},
@@ -11,8 +11,8 @@ customers_database = [
 ]
 
 orders_database = [
-    {"order_id": "ORD001", "customer_id": "CUST001", "status": "Processing", "items": ["Red Roses Bouquet"], "quantity": [1]},
-    {"order_id": "ORD002", "customer_id": "CUST002", "status": "Shipped", "items": ["Mixed Tulips", "Vase"], "quantity": [3, 1]},
+    {"order_id": "ORD001", "customer_id": "CUST001", "status": "Processing", "items": ["Organic Bananas", "Whole Milk"], "quantity": [2, 1]},
+    {"order_id": "ORD002", "customer_id": "CUST002", "status": "Shipped", "items": ["Whole Wheat Bread", "Spinach"], "quantity": [1, 2]},
 ]
 
 with open('inventory.json', 'r') as f:
@@ -91,7 +91,7 @@ def create_new_customer(first_name: str, surname: str, year_of_birth: int, month
 @tool
 def query_knowledge_base(query: str) -> List[Dict[str, str]]:
     """
-    Looks up information in a knowledge base to help with answering customer questions and getting information on business processes.
+    Looks up information in a knowledge base to help with answering customer questions and getting information on grocery store processes.
 
     Args:
         query (str): Question to ask the knowledge base
@@ -101,24 +101,24 @@ def query_knowledge_base(query: str) -> List[Dict[str, str]]:
     """
     return vector_store.query_faqs(query=query)
 
-
-
 @tool
-def search_for_product_reccommendations(description: str):
+def check_product_availability(product_name: str) -> str:
     """
-    Looks up information in a knowledge base to help with product recommendation for customers. For example:
-
-    "Boquets suitable for birthdays, maybe with red flowers"
-    "A large boquet for a wedding"
-    "A cheap boquet with wildflowers"
+    Checks the availability of a specific product in the grocery store inventory.
 
     Args:
-        query (str): Description of product features
+        product_name (str): Name of the product to check
 
-    Return:
-        List[Dict[str, str]]: Potentially relevant products
+    Returns:
+        str: Information about the product's availability and quantity
     """
-    return vector_store.query_inventories(query=description)
+    for item in inventory_database:
+        if item['name'].lower() == product_name.lower():
+            if item['quantity'] > 0:
+                return f"{item['name']} is available. We currently have {item['quantity']} in stock."
+            else:
+                return f"Sorry, {item['name']} is currently out of stock. It should be restocked within 3-5 business days."
+    return f"Sorry, we couldn't find '{product_name}' in our inventory. Please check the spelling or ask about a similar product."
 
 @tool
 def retrieve_existing_customer_orders(customer_id: str) -> List[Dict]:
@@ -139,14 +139,14 @@ def retrieve_existing_customer_orders(customer_id: str) -> List[Dict]:
 @tool
 def place_order(items: Dict[str, int], customer_id: str) -> str:
     """
-    Places an order for the requested items, and for the required quantities.
+    Places an order for the requested grocery items, and for the required quantities.
 
     Args:
         items (Dict[str, int]): Dictionary of items to order, with item id as the key and the quantity of that item as the value.
         customer_id (str): The customer to place the order for
 
     Returns:
-        str: Message indicating that the order has been placed, or, it hasnt been placed due to an issue 
+        str: Message indicating that the order has been placed, or, it hasn't been placed due to an issue 
     """
     # Check that the item ids are valid 
     # Check that the quantities of items are valid
@@ -180,3 +180,24 @@ def place_order(items: Dict[str, int], customer_id: str) -> str:
         inventory_item = [item for item in inventory_database if item['id'] == item_id][0]
         inventory_item['quantity'] -= quantity
     return f"Order with id {order_id} has been placed successfully"
+
+@tool
+def track_delivery(order_id: str) -> str:
+    """
+    Tracks the delivery status of a grocery order.
+
+    Args:
+        order_id (str): The unique identifier for the order
+
+    Returns:
+        str: Current status and estimated delivery time of the order
+    """
+    for order in orders_database:
+        if order['order_id'] == order_id:
+            if order['status'] == 'Processing':
+                return f"Order {order_id} is currently being processed. Estimated delivery: 2-3 hours."
+            elif order['status'] == 'Out for Delivery':
+                return f"Order {order_id} is out for delivery. It should arrive within the next hour."
+            elif order['status'] == 'Delivered':
+                return f"Order {order_id} has been delivered. Thank you for shopping with us!"
+    return f"Sorry, we couldn't find an order with ID {order_id}. Please check the order number and try again."
