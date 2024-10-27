@@ -9,6 +9,7 @@ This project implements a customer support chatbot with order management capabil
 Here's an overview of the customer and systems interaction flow:
 
 ![Blank diagram (15)](https://github.com/HarshJa1n/langgraph-support-poc/blob/main/assests/flow.png?raw=true)
+[Watch Demo](https://www.loom.com/share/5690395a0bcf45a38ef189f1b5d0d35d?sid=c8508c56-3335-49d1-9941-65cd4e2f0c78)
 
 
 ## Setup
